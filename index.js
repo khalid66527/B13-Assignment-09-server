@@ -41,6 +41,16 @@ async function run() {
       res.json(result)
     })
 
+    app.patch('/addCar/:id', async(req,res)=>{
+      const {id} = req.params
+      const updateData =req.body
+      const result = carCollection.updateOne(
+        {_id: new ObjectId(id)},
+        {$set:updateData}
+      )
+      res.json(result)
+    })
+
     app.post("/addCar", async (req, res) => {
       const addCarData = req.body
       console.log(addCarData)
