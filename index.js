@@ -30,6 +30,10 @@ async function run() {
     const db = client.db("b13-assignment")
     const carCollection = db.collection("carListeds")
 
+    const carCollectionBooking = db.collection("carAndUserBooking")
+
+
+
 
     app.get('/addCar', async (req, res) => {
       const result = await carCollection.find().toArray()
@@ -55,6 +59,12 @@ async function run() {
       const {id} = req.params;
       const result = await carCollection.deleteOne({_id: new ObjectId(id)})
       res.json(result)
+    })
+
+    app.post('/booking',async(req,res)=>{
+      const bookingData = req.body
+      const result = await carCollectionBooking.insertOne(bookingData)
+      return res.json(result)
     })
 
     app.post("/addCar", async (req, res) => {
