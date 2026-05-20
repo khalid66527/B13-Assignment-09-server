@@ -30,7 +30,7 @@ async function run() {
     const db = client.db("b13-assignment")
     const carCollection = db.collection("carListeds")
 
-    const carCollectionBooking = db.collection("carAndUserBooking")
+    const carBookingCollection = db.collection("carAndUserBooking")
 
 
 
@@ -39,31 +39,37 @@ async function run() {
       const result = await carCollection.find().toArray()
       res.json(result)
     })
-    app.get('/addCar/:id', async(req,res)=>{
-      const {id} = req.params
-      const result = await carCollection.findOne({_id: new ObjectId(id)})
+    app.get('/addCar/:id', async (req, res) => {
+      const { id } = req.params
+      const result = await carCollection.findOne({ _id: new ObjectId(id) })
       res.json(result)
     })
 
-    app.patch('/addCar/:id', async(req,res)=>{
-      const {id} = req.params
-      const updateData =req.body
+    app.patch('/addCar/:id', async (req, res) => {
+      const { id } = req.params
+      const updateData = req.body
       const result = carCollection.updateOne(
-        {_id: new ObjectId(id)},
-        {$set:updateData}
+        { _id: new ObjectId(id) },
+        { $set: updateData }
       )
       res.json(result)
     });
 
-    app.delete('/addCar/:id', async(req,res)=>{
-      const {id} = req.params;
-      const result = await carCollection.deleteOne({_id: new ObjectId(id)})
+    app.delete('/addCar/:id', async (req, res) => {
+      const { id } = req.params;
+      const result = await carCollection.deleteOne({ _id: new ObjectId(id) })
+      res.json(result)
+    })
+    app.get('/booking/:userId', async (req, res) => {
+      const { userId } = req.params;
+
+      const result = await carBookingCollection.find({ userId: userId }).toArray()
       res.json(result)
     })
 
-    app.post('/booking',async(req,res)=>{
+    app.post('/booking', async (req, res) => {
       const bookingData = req.body
-      const result = await carCollectionBooking.insertOne(bookingData)
+      const result = await carBookingCollection.insertOne(bookingData)
       return res.json(result)
     })
 
@@ -71,13 +77,13 @@ async function run() {
       const addCarData = req.body
       console.log(addCarData)
       const result = await carCollection.insertOne(addCarData)
-      
+
       res.send({
         success: true,
         insertedId: result.insertedId
       });
     })
-    
+
 
 
 
