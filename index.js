@@ -66,6 +66,11 @@ async function run() {
       const result = await carBookingCollection.find({ userId: userId }).toArray()
       res.json(result)
     })
+     app.delete('/booking/:bookingId', async (req, res) => {
+      const { bookingId } = req.params;
+      const result = await carBookingCollection.deleteOne({ _id: new ObjectId(bookingId) })
+      res.json(result)
+    })
 
     app.post('/booking', async (req, res) => {
       const bookingData = req.body
