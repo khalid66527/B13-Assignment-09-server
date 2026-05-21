@@ -90,13 +90,13 @@ async function run() {
       const result = await carCollection.deleteOne({ _id: new ObjectId(id) })
       res.json(result)
     })
-    app.get('/booking/:userId', async (req, res) => {
+    app.get('/booking/:userId', verifyToken, async (req, res) => {
       const { userId } = req.params;
-
       const result = await carBookingCollection.find({ userId: userId }).toArray()
       res.json(result)
     })
-     app.delete('/booking/:bookingId', async (req, res) => {
+
+     app.delete('/booking/:bookingId',  async (req, res) => {
       const { bookingId } = req.params;
       const result = await carBookingCollection.deleteOne({ _id: new ObjectId(bookingId) })
       res.json(result)
@@ -108,26 +108,26 @@ async function run() {
       res.json(result)
     })
 
-     app.get('/added/:userId', async (req, res) => {
+     app.get('/added/:userId', verifyToken , async (req, res) => {
       const { userId } = req.params;
 
       const result = await carAddedCollection.find({ userId: userId }).toArray()
       res.json(result)
     })
 
-    app.post('/addedData', async (req,res)=>{
+    app.post('/addedData',verifyToken, async (req,res)=>{
       const added = req.body
       const result= await carAddedCollection.insertOne(added)
       return res.json(result)
     })
 
-    app.post('/booking', async (req, res) => {
+    app.post('/booking', verifyToken, async (req, res) => {
       const bookingData = req.body
       const result = await carBookingCollection.insertOne(bookingData)
       return res.json(result)
     })
 
-    app.post("/addCar", async (req, res) => {
+    app.post("/addCar",verifyToken , async (req, res) => {
       const addCarData = req.body
       console.log(addCarData)
       const result = await carCollection.insertOne(addCarData)
