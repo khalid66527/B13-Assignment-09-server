@@ -29,20 +29,20 @@ const JWXS = createRemoteJWKSet(
 )
 
 
-const verifyToken = async(req, res, next) => {
+const verifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
-    if (!authHeader) {
+  if (!authHeader) {
     return res.status(401).json({ message: "No token found" });
   }
   const token = authHeader.split(" ")[1]
-  if(!token){
+  if (!token) {
     return res.status(401).json({ message: "No token found" });
   }
-  try{
-    const {payload} = await jwtVerify(token, JWXS)
-      next();
-  }catch(error){
-    return res.status(403).json({message:"Forbidden"})
+  try {
+    const { payload } = await jwtVerify(token, JWXS)
+    next();
+  } catch (error) {
+    return res.status(403).json({ message: "Forbidden" })
   }
 
 
@@ -69,7 +69,7 @@ async function run() {
     })
     //middleware 
 
-    app.get('/addCar/:id' ,verifyToken,async (req, res) => {
+    app.get('/addCar/:id', verifyToken, async (req, res) => {
       const { id } = req.params
       const result = await carCollection.findOne({ _id: new ObjectId(id) })
       res.json(result)
@@ -96,38 +96,52 @@ async function run() {
       res.json(result)
     })
 
-     app.delete('/booking/:bookingId',  async (req, res) => {
+    app.delete('/booking/:bookingId', async (req, res) => {
       const { bookingId } = req.params;
       const result = await carBookingCollection.deleteOne({ _id: new ObjectId(bookingId) })
       res.json(result)
     })
 
-     app.delete('/added/:addedId', async (req, res) => {
+    app.delete('/added/:addedId', async (req, res) => {
       const { addedId } = req.params;
       const result = await carAddedCollection.deleteOne({ _id: new ObjectId(addedId) })
       res.json(result)
     })
 
-     app.get('/added/:userId', verifyToken , async (req, res) => {
+    app.get('/added/:userId', verifyToken, async (req, res) => {
       const { userId } = req.params;
 
       const result = await carAddedCollection.find({ userId: userId }).toArray()
       res.json(result)
     })
 
-    app.post('/addedData',verifyToken, async (req,res)=>{
+    app.post('/addedData', verifyToken, async (req, res) => {
       const added = req.body
-      const result= await carAddedCollection.insertOne(added)
+      const result = await carAddedCollection.insertOne(added)
       return res.json(result)
     })
+
+    // app.post('/booking', verifyToken, async (req, res) => {
+    //   const bookingData = req.body
+    //   const result = await carBookingCollection.insertOne(bookingData)
+    //   return res.json(result)
+    // })
 
     app.post('/booking', verifyToken, async (req, res) => {
-      const bookingData = req.body
-      const result = await carBookingCollection.insertOne(bookingData)
-      return res.json(result)
-    })
+      const bookingData = req.body;
 
-    app.post("/addCar",verifyToken , async (req, res) => {
+      const result = await carBookingCollection.insertOne(bookingData);
+
+      const updateResult = await carCollection.updateOne(
+        { _id: new ObjectId(bookingData.carId) },
+        { $inc: { booking_count: 1 } }           
+      );
+
+      return res.json(result);
+    });
+
+
+    app.post("/addCar", verifyToken, async (req, res) => {
       const addCarData = req.body
       console.log(addCarData)
       const result = await carCollection.insertOne(addCarData)
