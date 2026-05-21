@@ -5,6 +5,8 @@ const express = require('express')
 const dontenv = require('dotenv')
 const cors = require("cors")
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { createRemoteJWKSet, jwtVerify } = require("jose-cjs");
+const { unescape } = require("node:querystring");
 dontenv.config();
 const uri = process.env.MONGODB_URI
 
@@ -20,6 +22,31 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
+
+
+const JWXS = createRemoteJWKSet(
+  new URL("http://localhost:3000/api/auth/jwks")
+)
+
+
+const verifyToken = async(req, res, next) => {
+  const authHeader = req.headers.authorization;
+    if (!authHeader) {
+    return res.status(401).json({ message: "No token found" });
+  }
+  const token = authHeader.split(" ")[1]
+  if(!token){
+    return res.status(401).json({ message: "No token found" });
+  }
+  try{
+    const {payload} = await jwtVerify(token, JWXS)
+      next();
+  }catch(error){
+    return res.status(403).json({message:"Forbidden"})
+  }
+
+
+};
 
 
 async function run() {
@@ -40,7 +67,9 @@ async function run() {
       const result = await carCollection.find().toArray()
       res.json(result)
     })
-    app.get('/addCar/:id', async (req, res) => {
+    //middleware 
+
+    app.get('/addCar/:id' ,verifyToken,async (req, res) => {
       const { id } = req.params
       const result = await carCollection.findOne({ _id: new ObjectId(id) })
       res.json(result)
