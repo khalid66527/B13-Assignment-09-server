@@ -31,6 +31,7 @@ async function run() {
     const carCollection = db.collection("carListeds")
 
     const carBookingCollection = db.collection("carAndUserBooking")
+    const carAddedCollection = db.collection("carAdded")
 
 
 
@@ -70,6 +71,25 @@ async function run() {
       const { bookingId } = req.params;
       const result = await carBookingCollection.deleteOne({ _id: new ObjectId(bookingId) })
       res.json(result)
+    })
+
+     app.delete('/added/:addedId', async (req, res) => {
+      const { addedId } = req.params;
+      const result = await carAddedCollection.deleteOne({ _id: new ObjectId(addedId) })
+      res.json(result)
+    })
+
+     app.get('/added/:userId', async (req, res) => {
+      const { userId } = req.params;
+
+      const result = await carAddedCollection.find({ userId: userId }).toArray()
+      res.json(result)
+    })
+
+    app.post('/addedData', async (req,res)=>{
+      const added = req.body
+      const result= await carAddedCollection.insertOne(added)
+      return res.json(result)
     })
 
     app.post('/booking', async (req, res) => {
