@@ -115,6 +115,12 @@ async function run() {
       res.json(result)
     })
 
+    app.get('/myCars/:userId', verifyToken, async (req, res) => {
+      const { userId } = req.params;
+      const result = await carCollection.find({ userId: userId }).toArray()
+      res.json(result)
+    })
+
     app.post('/addedData', verifyToken, async (req, res) => {
       const added = req.body
       const result = await carAddedCollection.insertOne(added)
